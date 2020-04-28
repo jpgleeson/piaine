@@ -10,15 +10,18 @@ namespace piaine
         {
             string inputString = readTemplateFile();
             List<string> outputStrings = new List<string>();
-            string checkThis = "<html>{ !thjehh }</html>";
 
             Scanner scanner = new Scanner(inputString);
 
             Parser parser = new Parser(scanner.scanTokens());
 
-            outputStrings = parser.writeVariablesInSource(checkThis);
+            List<string> testLines = new List<string>();
+            testLines.Add("title: Running it back");
+            testLines.Add("text:This is a test to see if the lines will extend and how long it will take before the line gets cut off and what happens then because it would be nice if it was all handled gracefully right now but really who knows.{ 1paraBreak } Do newlines work as it is right now? If so that would be useful.");
+            PageConsumer pageConsumer = new PageConsumer(testLines);
 
-            Console.WriteLine(checkThis);
+            outputStrings = parser.writeVariablesInSource(inputString, pageConsumer.variablesInPage);
+            
 
             var outputFile = File.Create("test.html");
             StreamWriter fileWriter = new StreamWriter(outputFile);

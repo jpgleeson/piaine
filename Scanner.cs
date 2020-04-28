@@ -88,7 +88,7 @@ namespace piaine
 
             Advance();
 
-            string value = subString(start + 1, current);
+            string value = subString(start + 1, current - 1);
             addToken(TokenType.Variable, value);
         }
 

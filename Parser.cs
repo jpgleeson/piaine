@@ -15,7 +15,7 @@ namespace piaine
             outputStrings = new List<string>();
         }
 
-        public List<string> writeVariablesInSource(string source)
+        public List<string> writeVariablesInSource(string source, List<Variable> variables)
         {
             foreach (Token t in tokens)
             {
@@ -26,7 +26,15 @@ namespace piaine
                 else if (t.type == TokenType.Variable)
                 {
                     Console.WriteLine(t.literal.ToString());
-                    outputStrings.Add(t.literal.ToString());
+                    foreach(Variable v in variables)
+                    {
+                        if (t.literal.ToString() == v.name)
+                        {
+                            outputStrings.Add(v.literal);
+                            break;
+                        }
+                    }
+                    //outputStrings.Add(t.literal.ToString());
                 }
             }
 
