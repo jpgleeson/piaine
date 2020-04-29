@@ -46,6 +46,7 @@ namespace piaine
             {
                 case '\n': newLine(); break;
                 case '#': header(); break;
+                case '+': link(); break;
                 default:
                     text();
                     break;
@@ -71,14 +72,44 @@ namespace piaine
             outputString += "<p>";
         }
 
+        private void link()
+        {
+            //advance();
+
+            while (peek() != '+' && !isAtEnd())
+            {
+                advance();
+                string debug = subString(start, current);
+            }
+
+            string linkURL = subString(start + 1, current);
+
+            start = current;
+
+            advance();
+
+            while(peek() != '+' && !isAtEnd())
+            {
+                advance();
+                string debug = subString(start, current);
+            }
+
+            advance();
+
+            string linkText = subString(start+1, current - 1);
+            linkText = linkText.Trim();
+
+            outputString += "<a href='" + linkURL + "'>";
+            outputString += linkText;
+            outputString += "</a>";
+        }
+
         private void text()
         {
             while (peek() != '\n' && !isAtEnd())
             {
                 advance();
             }
-         
-            
 
             string value = subString(start, current);
             outputString += value;
