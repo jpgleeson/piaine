@@ -26,16 +26,19 @@ The template html files are customised for each site, and use the markup describ
 # MARKUP
 ## Variables
 { !title } || { !date } || { !}
+
 Variables in piaine templates are described within parentheses and identified with a ! character immediately preceding the variable. These variables are then mapped from the source content files where the content relating to a variable is defined following a colon ':'
 
 ## Links
 +/TheCrowKing/+ Here+ is a sample link.
+
 The href is defined within the first + pair. Then the link text is the text before the closing + tag. Currently links only can be defined at the start of a paragraph. This should be an easy fix, but it is not implemented yet.
 
 ## Subtitles
 Subtitles are as done in markdown. # at the start of a line delimits that it should be a header or subtitle.
 
 # SAMPLE POST FILE
+```
 -title: Sample Post
 -body:
 #Intro
@@ -46,3 +49,4 @@ Piaine is created using minimal .Net Core libraries and nothing outside of the s
 #Links
 So I have actually added link support to this.
 +http://jpgleeson.com/+ Here+ is a link to my personal site, where I am dogfooding piaine.
+```
