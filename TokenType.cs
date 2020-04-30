@@ -25,6 +25,10 @@ namespace piaine
         /// </summary>
         Variable,
         /// <summary>
+        /// This is not the best way to do this.
+        /// </summary>
+        foreachLoop,
+        /// <summary>
         /// For html not in scope of the processing.
         /// </summary>
         Unscoped,

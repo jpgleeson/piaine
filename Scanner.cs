@@ -58,6 +58,7 @@ namespace piaine
                 case '{': addToken(TokenType.LeftParenthesis); break;
                 case '}': addToken(TokenType.RightParenthesis); break;
                 case '!': variable(); break;
+                case '|': foreachLoop(); break;
                 default:
                     if (tokens.Count > 0)
                     {
@@ -90,6 +91,17 @@ namespace piaine
 
             string value = subString(start + 1, current - 1);
             addToken(TokenType.Variable, value);
+        }
+
+        private void foreachLoop()
+        {
+            while(peek() != '|' && isAtEnd())
+            {
+                Advance();
+            }
+
+            string value = subString(start + 1, current - 1);
+            addToken(TokenType.foreachLoop, value);
         }
 
         private void notInScope()

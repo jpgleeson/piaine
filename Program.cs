@@ -8,7 +8,7 @@ namespace piaine
     {
         static void Main(string[] args)
         {
-            string inputString = readTemplateFile();
+            string inputString = readTemplateFile("post.html");
             List<string> outputStrings = new List<string>();
             List<string> inputLines = new List<string>();
 
@@ -17,6 +17,7 @@ namespace piaine
             List<string> sourceDirectory = new List<string>(Directory.GetFiles(Directory.GetCurrentDirectory() + "/posts/"));
 
             StreamWriter[] files = new StreamWriter[sourceDirectory.Count];
+            List<Post> posts = new List<Post>();
 
             //For some reason parser needs to be used outside of the foreach scope for the source files. I've no idea why, but this works right now.
             Parser parser = new Parser(scanner.scanTokens());
@@ -30,7 +31,9 @@ namespace piaine
                 //These html files will then be used to build the index
                 outputStrings.Clear();
 
-                
+                Post post = new Post();
+                post.path = Path.GetRelativePath("output", "output/posts/" + Path.GetFileNameWithoutExtension(s) + ".html");
+                post.date = DateTime.Today;
 
                 inputLines.Clear();
                 string[] strings = File.ReadAllLines(s);
@@ -41,11 +44,13 @@ namespace piaine
 
                 PageConsumer pageConsumer = new PageConsumer(inputLines);
 
+                post.name = pageConsumer.getPageTitle();
+
 
 
                 outputStrings = parser.writeVariablesInSource(inputString, pageConsumer.variablesInPage);
 
-                var outputFile = File.Create("output/" + Path.GetFileNameWithoutExtension(s) + ".html");
+                var outputFile = File.Create("output/posts/" + Path.GetFileNameWithoutExtension(s) + ".html");
                 files[i] = new StreamWriter(outputFile);
 
                 foreach (string st in outputStrings)
@@ -56,42 +61,38 @@ namespace piaine
                 files[i].Flush();
 
                 Console.WriteLine("{0} written.", Path.GetFileNameWithoutExtension(s));
+
+                posts.Add(post);
+
                 i++;
             }
-            //Console.WriteLine(sourceDirectory);
-            /*
-            Parser parser = new Parser(scanner.scanTokens());
 
-            List<string> testLines = new List<string>();
-            string[] strings = File.ReadAllLines("test.txt");
-            foreach (string s in strings)
+            inputString = readTemplateFile("index.html");
+            scanner = new Scanner(inputString);
+            parser = new Parser(scanner.scanTokens());
+            outputStrings.Clear();
+            var indexFile = File.Create("output/index.html");
+            
+            //Make an index here.
+            outputStrings = parser.writeVariablesInSource(inputString, posts);
+
+            StreamWriter indexWriter = new StreamWriter(indexFile);
+
+            foreach (string st in outputStrings)
             {
-                testLines.Add(s);
+                indexWriter.WriteLine(st);
             }
 
-            PageConsumer pageConsumer = new PageConsumer(testLines);
+            indexWriter.Flush();
 
-            
-
-            outputStrings = parser.writeVariablesInSource(inputString, pageConsumer.variablesInPage);
-            
-
-            var outputFile = File.Create("test.html");
-            StreamWriter fileWriter = new StreamWriter(outputFile);
-
-            foreach (string s in outputStrings)
-            {
-                fileWriter.WriteLine(s);
-            }
-
-            fileWriter.Dispose();*/
+            Console.WriteLine("Index written.");
 
             Console.ReadKey();
         }
 
-        static string readTemplateFile()
+        static string readTemplateFile(string path)
         {
-            string holderString = File.ReadAllText("holdingThis.html");
+            string holderString = File.ReadAllText(path);
 
             return holderString;
         }

@@ -50,5 +50,18 @@ namespace piaine
                 }
             }
         }
+
+        public string getPageTitle()
+        {
+            foreach (Variable v in variablesInPage)
+            {
+                if (v.name == "title")
+                {
+                    return v.literal;
+                }
+            }
+
+            return null;
+        }
     }
 }

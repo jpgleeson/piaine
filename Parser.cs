@@ -41,6 +41,38 @@ namespace piaine
             return outputStrings;
         }
 
+        public List<string> writeVariablesInSource(string source, List<Post> posts)
+        {
+            outputStrings.Clear();
+
+            foreach (Token t in tokens)
+            {
+                if (t.type == TokenType.Unscoped)
+                {
+                    outputStrings.Add(t.literal.ToString());
+                }
+                else if (t.type == TokenType.Variable)
+                {
+                    foreach (Post p in posts)
+                    {
+                        if (t.literal.ToString() == "postTitle")
+                        {
+                            outputStrings.Add(p.name);
+                            break;
+                        }
+                        else if (t.literal.ToString() == "postPath")
+                        {
+                            outputStrings.Add(p.path);
+                            break;
+                        }
+                    }
+                    //outputStrings.Add(t.literal.ToString());
+                }
+            }
+
+            return outputStrings;
+        }
+
 
         /// <summary>
         /// Use this to change a variable from the token list to the string of the variable from the source file.
