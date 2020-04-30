@@ -53,17 +53,19 @@ namespace piaine
                 }
                 else if (t.type == TokenType.Variable)
                 {
-                    foreach (Post p in posts)
+                    int counter = 0;
+                    if (t.literal.ToString() == "post")
                     {
-                        if (t.literal.ToString() == "postTitle")
+                        foreach (Post p in posts)
                         {
-                            outputStrings.Add(p.name);
-                            break;
-                        }
-                        else if (t.literal.ToString() == "postPath")
-                        {
-                            outputStrings.Add(p.path);
-                            break;
+                            String outputLink = "<div>{0}  -  <a href='{1}'>{2}</a></div>";
+
+                            outputLink = outputLink.Replace("{0}", p.date.ToShortDateString());
+                            outputLink = outputLink.Replace("{1}", p.path);
+                            outputLink = outputLink.Replace("{2}", p.name);
+
+                            counter++;
+                            outputStrings.Add(outputLink);
                         }
                     }
                     //outputStrings.Add(t.literal.ToString());
