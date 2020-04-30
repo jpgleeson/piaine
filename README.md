@@ -3,7 +3,7 @@
 Is é Piaine an cruthaitheoir suímh gríosain statacha .
 
 # SETUP
-'''
+```
 piaine/
 |-- piaine.exe
 |-- paine.dll
@@ -18,7 +18,7 @@ piaine/
 |   `-- post2.txt
 |-- post.html - Post template
 `-- index.html - Index template
-'''
+```
 
 Sample directory structure above.
 The template html files are customised for each site, and use the markup described below to insert the text from each individual posts.
