@@ -43,4 +43,4 @@ Déanta in Éirinn, thar lear.
 Piaine is created using minimal .Net Core libraries and nothing outside of the standard libraries. As a result, it is lightweight, and also very opinionated.
 #Links
 So I have actually added link support to this.
-+/TheCrowKing/+ Here+ is a link to my personal site, where I am dogfooding piaine.
++http://jpgleeson.com/+ Here+ is a link to my personal site, where I am dogfooding piaine.
