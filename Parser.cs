@@ -17,6 +17,7 @@ namespace piaine
 
         public List<string> writeVariablesInSource(string source, List<Variable> variables)
         {
+
             foreach (Token t in tokens)
             {
                 if (t.type == TokenType.Unscoped)
@@ -25,7 +26,6 @@ namespace piaine
                 }
                 else if (t.type == TokenType.Variable)
                 {
-                    Console.WriteLine(t.literal.ToString());
                     foreach(Variable v in variables)
                     {
                         if (t.literal.ToString() == v.name)
@@ -49,7 +49,6 @@ namespace piaine
         /// <returns></returns>
         public string writeVariable(Token tokenToWrite)
         {
-            Console.WriteLine(tokenToWrite.lexeme);
             return tokenToWrite.literal.ToString();
         }
     }
