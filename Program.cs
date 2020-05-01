@@ -73,7 +73,11 @@ namespace piaine
             parser = new Parser(scanner.scanTokens());
             outputStrings.Clear();
             var indexFile = File.Create("output/index.html");
-            
+
+            posts.Sort((x, y) => x.date.CompareTo(y.date));
+
+            posts.Reverse();
+
             //Make an index here.
             outputStrings = parser.writeVariablesInSource(inputString, posts);
 
