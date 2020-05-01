@@ -45,6 +45,7 @@ namespace piaine
                 PageConsumer pageConsumer = new PageConsumer(inputLines);
 
                 post.name = pageConsumer.getPageTitle();
+                post.date = pageConsumer.getPageDate();
 
 
 

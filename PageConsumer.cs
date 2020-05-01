@@ -63,5 +63,19 @@ namespace piaine
 
             return null;
         }
+
+        public DateTime getPageDate()
+        {
+            foreach (Variable v in variablesInPage)
+            {
+                if (v.name == "date")
+                {
+                    DateTime returnDate = DateTime.Parse(v.literal);
+                    return returnDate;
+                }
+            }
+
+            return DateTime.Today;
+        }
     }
 }
