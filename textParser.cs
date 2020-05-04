@@ -47,6 +47,7 @@ namespace piaine
                 case '\n': newLine(); break;
                 case '#': header(); break;
                 case '+': link(); break;
+                case '|': image(); break;
                 default:
                     text();
                     break;
@@ -102,6 +103,34 @@ namespace piaine
             outputString += "<a href='" + linkURL + "'>";
             outputString += linkText;
             outputString += "</a>";
+        }
+
+        private void image()
+        {
+            while (peek() != '|' && !isAtEnd())
+            {
+                advance();
+                string debug = subString(start, current);
+            }
+
+            string imgSource = subString(start + 1, current);
+
+            start = current;
+
+            advance();
+
+            while (peek() != '|' && !isAtEnd())
+            {
+                advance();
+                string debug = subString(start, current);
+            }
+
+            advance();
+
+            string altText = subString(start + 1, current - 1);
+            altText = altText.Trim();
+
+            outputString += "<img src='../content/" + imgSource + "' alt='" + altText + "'/>";
         }
 
         private void text()
