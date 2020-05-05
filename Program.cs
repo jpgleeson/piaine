@@ -47,6 +47,19 @@ namespace piaine
                 post.name = pageConsumer.getPageTitle();
                 post.date = pageConsumer.getPageDate();
 
+                if (pageConsumer.getPageTemplate() != null)
+                {
+                    inputString = readTemplateFile(pageConsumer.getPageTemplate());
+                    scanner.refreshSource(inputString);
+                    parser.refreshTokens(scanner.scanTokens());
+                }
+                else
+                {
+                    inputString = readTemplateFile("post.html");
+                    scanner.refreshSource(inputString);
+                    parser.refreshTokens(scanner.scanTokens());
+                }
+
 
 
                 outputStrings = parser.writeVariablesInSource(inputString, pageConsumer.variablesInPage);
@@ -68,10 +81,17 @@ namespace piaine
                 i++;
             }
 
-            inputString = readTemplateFile("index.html");
-            scanner = new Scanner(inputString);
-            parser = new Parser(scanner.scanTokens());
-            outputStrings.Clear();
+            buildIndexFile(posts);
+
+            Console.ReadKey();
+        }
+
+        static void buildIndexFile(List<Post> posts)
+        {
+            string inputString = readTemplateFile("index.html");
+            Scanner scanner = new Scanner(inputString);
+            Parser parser = new Parser(scanner.scanTokens());
+            List<string> outputStrings = new List<string>();
             var indexFile = File.Create("output/index.html");
 
             posts.Sort((x, y) => x.date.CompareTo(y.date));
@@ -91,8 +111,6 @@ namespace piaine
             indexWriter.Flush();
 
             Console.WriteLine("Index written.");
-
-            Console.ReadKey();
         }
 
         static string readTemplateFile(string path)

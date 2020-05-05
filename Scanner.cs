@@ -22,6 +22,15 @@ namespace piaine
             line = 0;
         }
 
+        public void refreshSource(string desSource)
+        {
+            tokens = new List<Token>();
+            source = desSource;
+            start = 0;
+            current = 0;
+            line = 0;
+        }
+
         public bool isAtEnd()
         {
             if (current >= source.Length)

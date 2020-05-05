@@ -15,6 +15,12 @@ namespace piaine
             outputStrings = new List<string>();
         }
 
+        public void refreshTokens(List<Token> desTokens)
+        {
+            tokens = desTokens;
+            outputStrings = new List<string>();
+        }
+
         public List<string> writeVariablesInSource(string source, List<Variable> variables)
         {
 

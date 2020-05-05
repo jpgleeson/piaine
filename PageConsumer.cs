@@ -64,6 +64,19 @@ namespace piaine
             return null;
         }
 
+        public string getPageTemplate()
+        {
+            foreach(Variable v in variablesInPage)
+            {
+                if (v.name == "template")
+                {
+                    return v.literal;
+                }
+            }
+
+            return null;
+        }
+
         public DateTime getPageDate()
         {
             foreach (Variable v in variablesInPage)

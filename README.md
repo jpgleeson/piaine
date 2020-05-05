@@ -45,9 +45,14 @@ Subtitles are as done in markdown. # at the start of a line delimits that it sho
 Images in piaine are defined with the file name and the alt text. The file name should be local to the content folder in the base site folder as shown in the directory structure above.
 Moving of images to this content folder is currently manual.
 
+## Templates
+
+Templates are an optional attribute that can be added in content files. If no template attribute is found, then the post template is used, otherwise, the specified template is loaded for that single file.
+
 # SAMPLE POST FILE
 ```
 -title: Sample Post
+-template: sampleTemplate.html
 -body:
 #Intro
 Piaine is a simple .Net Core static website generator. Piaine is a personal project. Not really recommended for people to use. But it is simple, and it is fast.
