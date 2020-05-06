@@ -32,7 +32,7 @@ namespace piaine
                 outputStrings.Clear();
 
                 Post post = new Post();
-                post.path = Path.GetRelativePath("output", "output/posts/" + Path.GetFileNameWithoutExtension(s) + ".html");
+                post.path = Path.GetRelativePath("output", "output/posts/" + Path.GetFileNameWithoutExtension(s).Replace(' ', '_') + ".html");
                 post.date = DateTime.Today;
 
                 inputLines.Clear();
@@ -64,7 +64,7 @@ namespace piaine
 
                 outputStrings = parser.writeVariablesInSource(inputString, pageConsumer.variablesInPage);
 
-                var outputFile = File.Create("output/posts/" + Path.GetFileNameWithoutExtension(s) + ".html");
+                var outputFile = File.Create("output/posts/" + Path.GetFileNameWithoutExtension(s).Replace(' ', '_') + ".html");
                 files[i] = new StreamWriter(outputFile);
 
                 foreach (string st in outputStrings)
@@ -74,7 +74,7 @@ namespace piaine
 
                 files[i].Flush();
 
-                Console.WriteLine("{0} written.", Path.GetFileNameWithoutExtension(s));
+                Console.WriteLine("{0} written.", Path.GetFileNameWithoutExtension(s).Replace(' ', '_'));
 
                 posts.Add(post);
 
@@ -82,6 +82,8 @@ namespace piaine
             }
 
             buildIndexFile(posts);
+
+            buildAtomFile(posts);
 
             Console.ReadKey();
         }
@@ -118,6 +120,33 @@ namespace piaine
             string holderString = File.ReadAllText(path);
 
             return holderString;
+        }
+
+        static void buildAtomFile(List<Post> posts)
+        {
+            string inputString = readTemplateFile("atom.xml");
+            Scanner scanner = new Scanner(inputString);
+            Parser parser = new Parser(scanner.scanTokens());
+            List<string> outputStrings = new List<string>();
+            var atomFile = File.Create("output/feed.atom.xml");
+
+            posts.Sort((x, y) => x.date.CompareTo(y.date));
+
+            posts.Reverse();
+
+            //Make an index here.
+            outputStrings = parser.writeAtomFeed(inputString, posts);
+
+            StreamWriter atomWriter = new StreamWriter(atomFile);
+
+            foreach (string st in outputStrings)
+            {
+                atomWriter.WriteLine(st);
+            }
+
+            atomWriter.Flush();
+
+            Console.WriteLine("Atom feed written.");
         }
     }
 }

@@ -2,6 +2,8 @@
 
 Is é Piaine an cruthaitheoir suímh gríosain statacha .
 
+piaine is a static site generator built on .net core.
+
 # SETUP
 ```
 piaine/
