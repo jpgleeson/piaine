@@ -52,12 +52,14 @@ namespace piaine
                     inputString = readTemplateFile(pageConsumer.getPageTemplate());
                     scanner.refreshSource(inputString);
                     parser.refreshTokens(scanner.scanTokens());
+                    post.typeOfPage = pageType.staticpage;
                 }
                 else
                 {
                     inputString = readTemplateFile("post.html");
                     scanner.refreshSource(inputString);
                     parser.refreshTokens(scanner.scanTokens());
+                    post.typeOfPage = pageType.post;
                 }
 
 
@@ -100,8 +102,20 @@ namespace piaine
 
             posts.Reverse();
 
+            List<Post> justPosts = new List<Post>();
+
+            foreach (Post p in posts)
+            {
+                if (p.typeOfPage == pageType.post)
+                {
+                    justPosts.Add(p);
+                }
+            }
+
+            Console.WriteLine(justPosts.Count);
+
             //Make an index here.
-            outputStrings = parser.writeVariablesInSource(inputString, posts);
+            outputStrings = parser.writeVariablesInSource(inputString, justPosts);
 
             StreamWriter indexWriter = new StreamWriter(indexFile);
 

@@ -9,5 +9,12 @@ namespace piaine
         public string name;
         public DateTime date;
         public string path;
+        public pageType typeOfPage;
+    }
+
+    public enum pageType
+    {
+        post,
+        staticpage
     }
 }
