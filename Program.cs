@@ -53,6 +53,7 @@ namespace piaine
                     scanner.refreshSource(inputString);
                     parser.refreshTokens(scanner.scanTokens());
                     post.typeOfPage = pageType.staticpage;
+                    Console.WriteLine("not a post");
                 }
                 else
                 {
@@ -66,8 +67,18 @@ namespace piaine
 
                 outputStrings = parser.writeVariablesInSource(inputString, pageConsumer.variablesInPage);
 
-                var outputFile = File.Create("output/posts/" + Path.GetFileNameWithoutExtension(s).Replace(' ', '_') + ".html");
-                files[i] = new StreamWriter(outputFile);
+                if (post.typeOfPage == pageType.post)
+                {
+                    var outputFile = File.Create("output/posts/" + Path.GetFileNameWithoutExtension(s).Replace(' ', '_') + ".html");
+                    files[i] = new StreamWriter(outputFile);
+                }
+                else
+                {
+                    var outputFile = File.Create("output/" + Path.GetFileNameWithoutExtension(s).Replace(' ', '_') + ".html");
+                    files[i] = new StreamWriter(outputFile);
+                }
+                
+                
 
                 foreach (string st in outputStrings)
                 {
