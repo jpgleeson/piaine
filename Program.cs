@@ -53,7 +53,6 @@ namespace piaine
                     scanner.refreshSource(inputString);
                     parser.refreshTokens(scanner.scanTokens());
                     post.typeOfPage = pageType.staticpage;
-                    Console.WriteLine("not a post");
                 }
                 else
                 {
@@ -98,6 +97,8 @@ namespace piaine
 
             buildAtomFile(posts);
 
+            Console.WriteLine("Files generated. Press any key to exit.");
+
             Console.ReadKey();
         }
 
@@ -122,8 +123,6 @@ namespace piaine
                     justPosts.Add(p);
                 }
             }
-
-            Console.WriteLine(justPosts.Count);
 
             //Make an index here.
             outputStrings = parser.writeVariablesInSource(inputString, justPosts);
