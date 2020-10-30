@@ -75,7 +75,6 @@ namespace piaine
 
         private void link()
         {
-            //advance();
 
             while (peek() != '+' && !isAtEnd())
             {
@@ -135,13 +134,22 @@ namespace piaine
 
         private void text()
         {
-            while (peek() != '\n' && !isAtEnd())
+            while (!textBreak(peek()) && !isAtEnd())
             {
                 advance();
             }
 
             string value = subString(start, current);
             outputString += value;
+        }
+
+        public bool textBreak(char check)
+        {
+            if (check == '\n' || check == '+')
+            {
+                return true;
+            }
+            return false;
         }
 
         public bool isAtEnd()
