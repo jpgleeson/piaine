@@ -46,6 +46,7 @@ namespace piaine
 
                 post.name = pageConsumer.getPageTitle();
                 post.date = pageConsumer.getPageDate();
+                post.tags = pageConsumer.getPageTags();
 
                 if (pageConsumer.getPageTemplate() != null)
                 {
