@@ -21,20 +21,42 @@ namespace piaine
                     if (s[0] == '-')
                     {
                         string[] splitString = s.Split(':');
-                        Variable v = new Variable(splitString[0], splitString[1]);
-                        v.name = v.name.Trim();
-                        v.name = v.name.Remove(0, 1);
-                        v.literal = v.literal.Trim();
-                        variablesInPage.Add(v);
-                        if (v.name == "body")
+                        
+                        if (splitString[0] == "tags")
                         {
-                            for (int i = currentLine + 1; i < inputLines.Count; i++)
+                            string[] splitTagString = splitString[1].Split(',');
+                            List<string> tagsInSplit = new List<string>();
+
+                            for (int i = 0; i < splitTagString.Length; i++)
                             {
-                                v.literal += "\n";
-                                v.literal += inputLines[i];
+                                tagsInSplit.Add(splitTagString[i].Trim());
+                                Console.WriteLine(splitTagString[i].Trim());
                             }
-                            break;
+                            TagVariable tV = new TagVariable(splitString[0], tagsInSplit);
+                            tV.name = tV.name.Trim();
+                            tV.name = tV.name.Remove(0, 1);
+                            variablesInPage.Add(tV);
                         }
+                        else
+                        {
+                            Variable v = new Variable(splitString[0], splitString[1]);
+                            v.name = v.name.Trim();
+                            v.name = v.name.Remove(0, 1);
+                            v.literal = v.literal.Trim();
+                            variablesInPage.Add(v);
+
+                            if (v.name == "body")
+                            {
+                                for (int i = currentLine + 1; i < inputLines.Count; i++)
+                                {
+                                     v.literal += "\n";
+                                     v.literal += inputLines[i];
+                                }
+                                break;
+                            }
+                        }
+                        
+                        
                         currentLine++;
                     }
                 }
@@ -47,6 +69,12 @@ namespace piaine
                     //use markdown parser to output html that will be saved as the literal.
                     textParser textParser = new textParser();
                     v.literal = textParser.parseString(v.literal);
+                }
+                else if (v.name =="tags")
+                {
+                    TagVariable tV = v as TagVariable;
+                    TagParser tagParser = new TagParser();
+                    Console.WriteLine(tV.items);
                 }
             }
         }
@@ -89,6 +117,22 @@ namespace piaine
             }
 
             return DateTime.Today;
+        }
+
+        public List<string> getPageTags()
+        {
+
+            List<string> returnList = new List<string>();
+
+            foreach (Variable v in variablesInPage)
+            {
+                if (v.name == "tags")
+                {
+                    returnList.Add(v.literal);
+                    return returnList;
+                }
+            }
+            return null;
         }
     }
 }

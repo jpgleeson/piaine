@@ -18,6 +18,7 @@ namespace piaine
 
             StreamWriter[] files = new StreamWriter[sourceDirectory.Count];
             List<Post> posts = new List<Post>();
+            List<string> tags = new List<string>();
 
             //For some reason parser needs to be used outside of the foreach scope for the source files. I've no idea why, but this works right now.
             Parser parser = new Parser(scanner.scanTokens());
@@ -47,6 +48,11 @@ namespace piaine
                 post.name = pageConsumer.getPageTitle();
                 post.date = pageConsumer.getPageDate();
                 post.tags = pageConsumer.getPageTags();
+
+                foreach (string tag in post.tags)
+                {
+                    tags.Add(tag);
+                }
 
                 if (pageConsumer.getPageTemplate() != null)
                 {
@@ -99,6 +105,10 @@ namespace piaine
             buildAtomFile(posts);
 
             Console.WriteLine("Files generated. Press any key to exit.");
+            foreach (string eachtag in tags)
+            {
+                Console.WriteLine(eachtag);
+            }
 
             Console.ReadKey();
         }
@@ -172,6 +182,43 @@ namespace piaine
             atomWriter.Flush();
 
             Console.WriteLine("Atom feed written.");
+        }
+
+        static void buildTagFiles(List<Post> posts)
+        {
+            string inputString = readTemplateFile("index.html");
+            Scanner scanner = new Scanner(inputString);
+            Parser parser = new Parser(scanner.scanTokens());
+            List<string> outputStrings = new List<string>();
+            var indexFile = File.Create("output/index.html");
+
+            posts.Sort((x, y) => x.date.CompareTo(y.date));
+
+            posts.Reverse();
+
+            List<Post> justPosts = new List<Post>();
+
+            foreach (Post p in posts)
+            {
+                if (p.typeOfPage == pageType.post)
+                {
+                    justPosts.Add(p);
+                }
+            }
+
+            //Make an index here.
+            outputStrings = parser.writeVariablesInSource(inputString, justPosts);
+
+            StreamWriter indexWriter = new StreamWriter(indexFile);
+
+            foreach (string st in outputStrings)
+            {
+                indexWriter.WriteLine(st);
+            }
+
+            indexWriter.Flush();
+
+            Console.WriteLine("Index written.");
         }
     }
 }
