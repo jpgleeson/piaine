@@ -13,6 +13,7 @@ namespace piaine
         {
             variablesInPage = new List<Variable>();
             int currentLine = 0;
+            TagParser tagparser;
 
             foreach (string s in inputLines)
             {
@@ -47,6 +48,13 @@ namespace piaine
                     //use markdown parser to output html that will be saved as the literal.
                     textParser textParser = new textParser();
                     v.literal = textParser.parseString(v.literal);
+                }
+                else if (v.name == "tags")
+                {
+                    TagCollectionVariable tagList;
+                    tagList = new TagCollectionVariable(v.name, new List<string>());
+                    tagparser = new TagParser();
+                    tagList.literalList = tagparser.parseString(v.literal);
                 }
             }
         }
@@ -89,6 +97,21 @@ namespace piaine
             }
 
             return DateTime.Today;
+        }
+
+        public List<string> getPageTags()
+        {
+            TagCollectionVariable tagList = new TagCollectionVariable();
+            foreach (Variable v in variablesInPage)
+            {
+                if (v.name == "tags")
+                {
+                    tagList = new TagCollectionVariable(v.name, new List<string>());
+                    TagParser tagparser = new TagParser();
+                    tagList.literalList = tagparser.parseString(v.literal);
+                }
+            }
+            return tagList.literalList;
         }
     }
 }

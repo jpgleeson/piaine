@@ -10,6 +10,7 @@ namespace piaine
         public DateTime date;
         public string path;
         public pageType typeOfPage;
+        public List<string> tags;
     }
 
     public enum pageType

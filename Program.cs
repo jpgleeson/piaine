@@ -11,6 +11,7 @@ namespace piaine
             string inputString = readTemplateFile("post.html");
             List<string> outputStrings = new List<string>();
             List<string> inputLines = new List<string>();
+            List<string> tags = new List<string>();
 
             Scanner scanner = new Scanner(inputString);
 
@@ -63,7 +64,10 @@ namespace piaine
                     post.typeOfPage = pageType.post;
                 }
 
-
+                if (post.tags != null)
+                {
+                    tags.AddRange(post.tags);
+                }
 
                 outputStrings = parser.writeVariablesInSource(inputString, pageConsumer.variablesInPage);
 
@@ -97,6 +101,11 @@ namespace piaine
             buildIndexFile(posts);
 
             buildAtomFile(posts);
+
+            foreach (string s in tags)
+            {
+                Console.WriteLine(s);
+            }
 
             Console.WriteLine("Files generated. Press any key to exit.");
 
