@@ -22,20 +22,42 @@ namespace piaine
                     if (s[0] == '-')
                     {
                         string[] splitString = s.Split(':');
-                        Variable v = new Variable(splitString[0], splitString[1]);
-                        v.name = v.name.Trim();
-                        v.name = v.name.Remove(0, 1);
-                        v.literal = v.literal.Trim();
-                        variablesInPage.Add(v);
-                        if (v.name == "body")
+                        
+                        if (splitString[0] == "tags")
                         {
-                            for (int i = currentLine + 1; i < inputLines.Count; i++)
+                            string[] splitTagString = splitString[1].Split(',');
+                            List<string> tagsInSplit = new List<string>();
+
+                            for (int i = 0; i < splitTagString.Length; i++)
                             {
-                                v.literal += "\n";
-                                v.literal += inputLines[i];
+                                tagsInSplit.Add(splitTagString[i].Trim());
+                                Console.WriteLine(splitTagString[i].Trim());
                             }
-                            break;
+                            TagVariable tV = new TagVariable(splitString[0], tagsInSplit);
+                            tV.name = tV.name.Trim();
+                            tV.name = tV.name.Remove(0, 1);
+                            variablesInPage.Add(tV);
                         }
+                        else
+                        {
+                            Variable v = new Variable(splitString[0], splitString[1]);
+                            v.name = v.name.Trim();
+                            v.name = v.name.Remove(0, 1);
+                            v.literal = v.literal.Trim();
+                            variablesInPage.Add(v);
+
+                            if (v.name == "body")
+                            {
+                                for (int i = currentLine + 1; i < inputLines.Count; i++)
+                                {
+                                     v.literal += "\n";
+                                     v.literal += inputLines[i];
+                                }
+                                break;
+                            }
+                        }
+                        
+                        
                         currentLine++;
                     }
                 }
