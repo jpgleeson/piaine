@@ -82,6 +82,93 @@ namespace piaine
             return outputStrings;
         }
 
+        public List<string> writeVariablesInSource(string source, List<Post> posts, List<string> tags)
+        {
+            outputStrings.Clear();
+
+            foreach (Token t in tokens)
+            {
+                if (t.type == TokenType.Unscoped)
+                {
+                    outputStrings.Add(t.literal.ToString());
+                }
+                else if (t.type == TokenType.Variable)
+                {
+                    int counter = 0;
+
+                    if (t.literal.ToString() == "post")
+                    {
+                        foreach (Post p in posts)
+                        {
+                            String outputLink = "<div>{0}  -  <a href='{1}'>{2}</a></div>";
+
+                            outputLink = outputLink.Replace("{0}", p.date.ToShortDateString());
+                            outputLink = outputLink.Replace("{1}", p.path);
+                            outputLink = outputLink.Replace("{2}", p.name);
+
+                            counter++;
+                            outputStrings.Add(outputLink);
+                        }
+                    }
+                    else if (t.literal.ToString() == "tagCloud")
+                    {
+                        foreach (string tag in tags)
+                        {
+                            String outputLink = "<div>-<a href='{1}'>{2}</a></div>";
+
+                            outputLink = outputLink.Replace("{1}", "./tags/" + tag + ".html");
+                            outputLink = outputLink.Replace("{2}", tag);
+
+                            counter++;
+                            outputStrings.Add(outputLink);
+                        }
+                    }
+                    //outputStrings.Add(t.literal.ToString());
+                }
+            }
+
+            return outputStrings;
+        }
+
+        public List<string> writeVariablesInSource(string source, List<Post> posts, string title)
+        {
+            outputStrings.Clear();
+
+            foreach (Token t in tokens)
+            {
+                if (t.type == TokenType.Unscoped)
+                {
+                    outputStrings.Add(t.literal.ToString());
+                }
+                else if (t.type == TokenType.Variable)
+                {
+                    int counter = 0;
+
+                    if (t.literal.ToString() == "post")
+                    {
+                        foreach (Post p in posts)
+                        {
+                            String outputLink = "<div>{0}  -  <a href='{1}'>{2}</a></div>";
+
+                            outputLink = outputLink.Replace("{0}", p.date.ToShortDateString());
+                            outputLink = outputLink.Replace("{1}", "../" + p.path);
+                            outputLink = outputLink.Replace("{2}", p.name);
+
+                            counter++;
+                            outputStrings.Add(outputLink);
+                        }
+                    }
+                    else if (t.literal.ToString() == "title")
+                    {
+                        counter++;
+                        outputStrings.Add(title);
+                    }
+                }
+            }
+
+            return outputStrings;
+        }
+
         public List<string> writeAtomFeed(string source, List<Post> posts)
         {
             outputStrings.Clear();

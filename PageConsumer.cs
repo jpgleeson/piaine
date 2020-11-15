@@ -33,7 +33,7 @@ namespace piaine
                                 tagsInSplit.Add(splitTagString[i].Trim());
                                 Console.WriteLine(splitTagString[i].Trim());
                             }
-                            TagVariable tV = new TagVariable(splitString[0], tagsInSplit);
+                            TagCollectionVariable tV = new TagCollectionVariable(splitString[0], tagsInSplit);
                             tV.name = tV.name.Trim();
                             tV.name = tV.name.Remove(0, 1);
                             variablesInPage.Add(tV);

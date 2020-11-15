@@ -11,7 +11,7 @@ namespace piaine
             string inputString = readTemplateFile("post.html");
             List<string> outputStrings = new List<string>();
             List<string> inputLines = new List<string>();
-            List<string> tags = new List<string>();
+            bool buildTagIndexes = false;
 
             Scanner scanner = new Scanner(inputString);
 
@@ -23,6 +23,14 @@ namespace piaine
 
             //For some reason parser needs to be used outside of the foreach scope for the source files. I've no idea why, but this works right now.
             Parser parser = new Parser(scanner.scanTokens());
+
+            foreach (string argument in args)
+            {
+                if (argument == "-tags")
+                {
+                    buildTagIndexes = true;
+                }
+            }
 
             int i = 0;
 
@@ -36,6 +44,7 @@ namespace piaine
                 Post post = new Post();
                 post.path = Path.GetRelativePath("output", "output/posts/" + Path.GetFileNameWithoutExtension(s).Replace(' ', '_') + ".html");
                 post.date = DateTime.Today;
+                post.tags = new List<string>();
 
                 inputLines.Clear();
                 string[] strings = File.ReadAllLines(s);
@@ -50,10 +59,6 @@ namespace piaine
                 post.date = pageConsumer.getPageDate();
                 post.tags = pageConsumer.getPageTags();
 
-                foreach (string tag in post.tags)
-                {
-                    tags.Add(tag);
-                }
 
                 if (pageConsumer.getPageTemplate() != null)
                 {
@@ -72,7 +77,13 @@ namespace piaine
 
                 if (post.tags != null)
                 {
-                    tags.AddRange(post.tags);
+                    foreach (string tag in post.tags)
+                    {
+                        if (!tags.Contains(tag))
+                        {
+                            tags.Add(tag);
+                        }
+                    }
                 }
 
                 outputStrings = parser.writeVariablesInSource(inputString, pageConsumer.variablesInPage);
@@ -104,7 +115,17 @@ namespace piaine
                 i++;
             }
 
-            buildIndexFile(posts);
+            
+
+            if (buildTagIndexes)
+            {
+                buildTagFiles(posts, tags);
+                buildIndexFile(posts, tags);
+            }
+            else
+            {
+                buildIndexFile(posts);
+            }
 
             buildAtomFile(posts);
 
@@ -122,7 +143,7 @@ namespace piaine
             Console.ReadKey();
         }
 
-        static void buildIndexFile(List<Post> posts)
+        static void buildIndexFile(List<Post> posts, List<string> tagCloud = null)
         {
             string inputString = readTemplateFile("index.html");
             Scanner scanner = new Scanner(inputString);
@@ -145,7 +166,14 @@ namespace piaine
             }
 
             //Make an index here.
-            outputStrings = parser.writeVariablesInSource(inputString, justPosts);
+            if (tagCloud != null)
+            {
+                outputStrings = parser.writeVariablesInSource(inputString, justPosts, tagCloud);
+            }
+            else
+            {
+                outputStrings = parser.writeVariablesInSource(inputString, justPosts);
+            }
 
             StreamWriter indexWriter = new StreamWriter(indexFile);
 
@@ -193,41 +221,58 @@ namespace piaine
             Console.WriteLine("Atom feed written.");
         }
 
-        static void buildTagFiles(List<Post> posts)
+        static void buildTagFiles(List<Post> posts, List<string> tags)
         {
-            string inputString = readTemplateFile("index.html");
+            string inputString = readTemplateFile("tagIndex.html");
             Scanner scanner = new Scanner(inputString);
             Parser parser = new Parser(scanner.scanTokens());
             List<string> outputStrings = new List<string>();
-            var indexFile = File.Create("output/index.html");
 
-            posts.Sort((x, y) => x.date.CompareTo(y.date));
-
-            posts.Reverse();
-
-            List<Post> justPosts = new List<Post>();
-
-            foreach (Post p in posts)
+            foreach (string tag in tags)
             {
-                if (p.typeOfPage == pageType.post)
+                Console.WriteLine("{0} index being built.", tag);
+
+                string filePath = "output/tags/" + tag + ".html";
+                if (!Directory.Exists("output/tags/"))
                 {
-                    justPosts.Add(p);
+                    Directory.CreateDirectory("output/tags/");
                 }
+                var tagIndex = File.Create(filePath);
+
+                List<Post> taggedPosts = new List<Post>();
+
+                posts.Sort((x, y) => x.date.CompareTo(y.date));
+
+                posts.Reverse();
+
+                foreach (Post p in posts)
+                {
+                    if (p.typeOfPage == pageType.post)
+                    {
+                        if (p.tags != null)
+                        {
+                            if (p.tags.Contains(tag))
+                            {
+                                Console.WriteLine(p.name);
+                                taggedPosts.Add(p);
+                            }
+                        }
+                    }
+                }
+
+                outputStrings = parser.writeVariablesInSource(inputString, taggedPosts, tag);
+
+                StreamWriter tagIndexWriter = new StreamWriter(tagIndex);
+
+                foreach (string st in outputStrings)
+                {
+                    tagIndexWriter.WriteLine(st);
+                }
+
+                tagIndexWriter.Flush();
             }
 
-            //Make an index here.
-            outputStrings = parser.writeVariablesInSource(inputString, justPosts);
-
-            StreamWriter indexWriter = new StreamWriter(indexFile);
-
-            foreach (string st in outputStrings)
-            {
-                indexWriter.WriteLine(st);
-            }
-
-            indexWriter.Flush();
-
-            Console.WriteLine("Index written.");
+            Console.WriteLine("{0} tag indices written.", tags.Count.ToString());
         }
     }
 }
