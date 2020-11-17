@@ -15,6 +15,11 @@ namespace piaine
 
             Scanner scanner = new Scanner(inputString);
 
+            if (!Directory.Exists("posts"))
+            {
+                Console.WriteLine("Posts directory does not exist. Creating...");
+                Directory.CreateDirectory("posts");
+            }
             List<string> sourceDirectory = new List<string>(Directory.GetFiles(Directory.GetCurrentDirectory() + "/posts/"));
 
             StreamWriter[] files = new StreamWriter[sourceDirectory.Count];
@@ -34,7 +39,16 @@ namespace piaine
 
             int i = 0;
 
-            foreach(string s in sourceDirectory)
+            if (!Directory.Exists("output"))
+            {
+                Directory.CreateDirectory("output");
+            }
+            if (!Directory.Exists("output/posts"))
+            {
+                Directory.CreateDirectory("output/posts");
+            }
+
+            foreach (string s in sourceDirectory)
             {
                 //Strip each one to get just the local path in the posts folder i.e. "test.txt"
                 //From each of these a html file will be created with the same name in a folder.
@@ -45,6 +59,8 @@ namespace piaine
                 post.path = Path.GetRelativePath("output", "output/posts/" + Path.GetFileNameWithoutExtension(s).Replace(' ', '_') + ".html");
                 post.date = DateTime.Today;
                 post.tags = new List<string>();
+
+                bool skip = false;
 
                 inputLines.Clear();
                 string[] strings = File.ReadAllLines(s);
@@ -62,10 +78,18 @@ namespace piaine
 
                 if (pageConsumer.getPageTemplate() != null)
                 {
-                    inputString = readTemplateFile(pageConsumer.getPageTemplate());
-                    scanner.refreshSource(inputString);
-                    parser.refreshTokens(scanner.scanTokens());
                     post.typeOfPage = pageType.staticpage;
+                    if (File.Exists(pageConsumer.getPageTemplate()))
+                    {
+                        inputString = readTemplateFile(pageConsumer.getPageTemplate());
+                        scanner.refreshSource(inputString);
+                        parser.refreshTokens(scanner.scanTokens());
+                    }
+                    else
+                    {
+                        Console.WriteLine("Template {0} does not exist. Exiting.", pageConsumer.getPageTemplate());
+                        skip = true;
+                    }
                 }
                 else
                 {
@@ -75,42 +99,46 @@ namespace piaine
                     post.typeOfPage = pageType.post;
                 }
 
-                if (post.tags != null)
+                if (!skip)
                 {
-                    foreach (string tag in post.tags)
+                    if (post.tags != null)
                     {
-                        if (!tags.Contains(tag))
+                        foreach (string tag in post.tags)
                         {
-                            tags.Add(tag);
+                            if (!tags.Contains(tag))
+                            {
+                                tags.Add(tag);
+                            }
                         }
                     }
-                }
 
-                outputStrings = parser.writeVariablesInSource(inputString, pageConsumer.variablesInPage);
+                    outputStrings = parser.writeVariablesInSource(inputString, pageConsumer.variablesInPage);
 
-                if (post.typeOfPage == pageType.post)
-                {
-                    var outputFile = File.Create("output/posts/" + Path.GetFileNameWithoutExtension(s).Replace(' ', '_') + ".html");
-                    files[i] = new StreamWriter(outputFile);
-                }
-                else
-                {
-                    var outputFile = File.Create("output/" + Path.GetFileNameWithoutExtension(s).Replace(' ', '_') + ".html");
-                    files[i] = new StreamWriter(outputFile);
+                    if (post.typeOfPage == pageType.post)
+                    {
+                        var outputFile = File.Create("output/posts/" + Path.GetFileNameWithoutExtension(s).Replace(' ', '_') + ".html");
+                        files[i] = new StreamWriter(outputFile);
+                    }
+                    else
+                    {
+                        var outputFile = File.Create("output/" + Path.GetFileNameWithoutExtension(s).Replace(' ', '_') + ".html");
+                        files[i] = new StreamWriter(outputFile);
+                    }
+
+
+
+                    foreach (string st in outputStrings)
+                    {
+                        files[i].WriteLine(st);
+                    }
+
+                    files[i].Flush();
+
+                    Console.WriteLine("{0} written.", Path.GetFileNameWithoutExtension(s).Replace(' ', '_'));
+
+                    posts.Add(post);
                 }
                 
-                
-
-                foreach (string st in outputStrings)
-                {
-                    files[i].WriteLine(st);
-                }
-
-                files[i].Flush();
-
-                Console.WriteLine("{0} written.", Path.GetFileNameWithoutExtension(s).Replace(' ', '_'));
-
-                posts.Add(post);
 
                 i++;
             }
@@ -129,150 +157,160 @@ namespace piaine
 
             buildAtomFile(posts);
 
-            foreach (string s in tags)
-            {
-                Console.WriteLine(s);
-            }
-
             Console.WriteLine("Files generated. Press any key to exit.");
-            foreach (string eachtag in tags)
-            {
-                Console.WriteLine(eachtag);
-            }
 
             Console.ReadKey();
         }
 
         static void buildIndexFile(List<Post> posts, List<string> tagCloud = null)
         {
-            string inputString = readTemplateFile("index.html");
-            Scanner scanner = new Scanner(inputString);
-            Parser parser = new Parser(scanner.scanTokens());
-            List<string> outputStrings = new List<string>();
-            var indexFile = File.Create("output/index.html");
-
-            posts.Sort((x, y) => x.date.CompareTo(y.date));
-
-            posts.Reverse();
-
-            List<Post> justPosts = new List<Post>();
-
-            foreach (Post p in posts)
+            if (File.Exists("index.html"))
             {
-                if (p.typeOfPage == pageType.post)
-                {
-                    justPosts.Add(p);
-                }
-            }
-
-            //Make an index here.
-            if (tagCloud != null)
-            {
-                outputStrings = parser.writeVariablesInSource(inputString, justPosts, tagCloud);
-            }
-            else
-            {
-                outputStrings = parser.writeVariablesInSource(inputString, justPosts);
-            }
-
-            StreamWriter indexWriter = new StreamWriter(indexFile);
-
-            foreach (string st in outputStrings)
-            {
-                indexWriter.WriteLine(st);
-            }
-
-            indexWriter.Flush();
-
-            Console.WriteLine("Index written.");
-        }
-
-        static string readTemplateFile(string path)
-        {
-            string holderString = File.ReadAllText(path);
-
-            return holderString;
-        }
-
-        static void buildAtomFile(List<Post> posts)
-        {
-            string inputString = readTemplateFile("atom.xml");
-            Scanner scanner = new Scanner(inputString);
-            Parser parser = new Parser(scanner.scanTokens());
-            List<string> outputStrings = new List<string>();
-            var atomFile = File.Create("output/feed.atom.xml");
-
-            posts.Sort((x, y) => x.date.CompareTo(y.date));
-
-            posts.Reverse();
-
-            //Make an index here.
-            outputStrings = parser.writeAtomFeed(inputString, posts);
-
-            StreamWriter atomWriter = new StreamWriter(atomFile);
-
-            foreach (string st in outputStrings)
-            {
-                atomWriter.WriteLine(st);
-            }
-
-            atomWriter.Flush();
-
-            Console.WriteLine("Atom feed written.");
-        }
-
-        static void buildTagFiles(List<Post> posts, List<string> tags)
-        {
-            string inputString = readTemplateFile("tagIndex.html");
-            Scanner scanner = new Scanner(inputString);
-            Parser parser = new Parser(scanner.scanTokens());
-            List<string> outputStrings = new List<string>();
-
-            foreach (string tag in tags)
-            {
-                Console.WriteLine("{0} index being built.", tag);
-
-                string filePath = "output/tags/" + tag + ".html";
-                if (!Directory.Exists("output/tags/"))
-                {
-                    Directory.CreateDirectory("output/tags/");
-                }
-                var tagIndex = File.Create(filePath);
-
-                List<Post> taggedPosts = new List<Post>();
+                string inputString = readTemplateFile("index.html");
+                Scanner scanner = new Scanner(inputString);
+                Parser parser = new Parser(scanner.scanTokens());
+                List<string> outputStrings = new List<string>();
+                var indexFile = File.Create("output/index.html");
 
                 posts.Sort((x, y) => x.date.CompareTo(y.date));
 
                 posts.Reverse();
 
+                List<Post> justPosts = new List<Post>();
+
                 foreach (Post p in posts)
                 {
                     if (p.typeOfPage == pageType.post)
                     {
-                        if (p.tags != null)
-                        {
-                            if (p.tags.Contains(tag))
-                            {
-                                Console.WriteLine(p.name);
-                                taggedPosts.Add(p);
-                            }
-                        }
+                        justPosts.Add(p);
                     }
                 }
 
-                outputStrings = parser.writeVariablesInSource(inputString, taggedPosts, tag);
+                //Make an index here.
+                if (tagCloud != null)
+                {
+                    outputStrings = parser.writeVariablesInSource(inputString, justPosts, tagCloud);
+                }
+                else
+                {
+                    outputStrings = parser.writeVariablesInSource(inputString, justPosts);
+                }
 
-                StreamWriter tagIndexWriter = new StreamWriter(tagIndex);
+                StreamWriter indexWriter = new StreamWriter(indexFile);
 
                 foreach (string st in outputStrings)
                 {
-                    tagIndexWriter.WriteLine(st);
+                    indexWriter.WriteLine(st);
                 }
 
-                tagIndexWriter.Flush();
-            }
+                indexWriter.Flush();
 
-            Console.WriteLine("{0} tag indices written.", tags.Count.ToString());
+                Console.WriteLine("Index written.");
+            }
+            else
+            {
+                Console.WriteLine("No index template. Exiting.");
+            }
+        }
+
+        static string readTemplateFile(string path)
+        {
+            string holderString = File.ReadAllText(path);
+            return holderString;
+        }
+
+        static void buildAtomFile(List<Post> posts)
+        {
+            if (File.Exists("atom.xml"))
+            {
+                string inputString = readTemplateFile("atom.xml");
+                Scanner scanner = new Scanner(inputString);
+                Parser parser = new Parser(scanner.scanTokens());
+                List<string> outputStrings = new List<string>();
+                var atomFile = File.Create("output/feed.atom.xml");
+
+                posts.Sort((x, y) => x.date.CompareTo(y.date));
+
+                posts.Reverse();
+
+                //Make an index here.
+                outputStrings = parser.writeAtomFeed(inputString, posts);
+
+                StreamWriter atomWriter = new StreamWriter(atomFile);
+
+                foreach (string st in outputStrings)
+                {
+                    atomWriter.WriteLine(st);
+                }
+
+                atomWriter.Flush();
+
+                Console.WriteLine("Atom feed written.");
+            }
+            else
+            {
+                Console.WriteLine("No atom template. Exiting.");
+            }
+        }
+
+        static void buildTagFiles(List<Post> posts, List<string> tags)
+        {
+            if (File.Exists("tagIndex.html"))
+            {
+                string inputString = readTemplateFile("tagIndex.html");
+                Scanner scanner = new Scanner(inputString);
+                Parser parser = new Parser(scanner.scanTokens());
+                List<string> outputStrings = new List<string>();
+
+                foreach (string tag in tags)
+                {
+                    Console.WriteLine("{0} index being built.", tag);
+
+                    string filePath = "output/tags/" + tag + ".html";
+                    if (!Directory.Exists("output/tags/"))
+                    {
+                        Directory.CreateDirectory("output/tags/");
+                    }
+                    var tagIndex = File.Create(filePath);
+
+                    List<Post> taggedPosts = new List<Post>();
+
+                    posts.Sort((x, y) => x.date.CompareTo(y.date));
+
+                    posts.Reverse();
+
+                    foreach (Post p in posts)
+                    {
+                        if (p.typeOfPage == pageType.post)
+                        {
+                            if (p.tags != null)
+                            {
+                                if (p.tags.Contains(tag))
+                                {
+                                    taggedPosts.Add(p);
+                                }
+                            }
+                        }
+                    }
+
+                    outputStrings = parser.writeVariablesInSource(inputString, taggedPosts, tag);
+
+                    StreamWriter tagIndexWriter = new StreamWriter(tagIndex);
+
+                    foreach (string st in outputStrings)
+                    {
+                        tagIndexWriter.WriteLine(st);
+                    }
+
+                    tagIndexWriter.Flush();
+                }
+
+                Console.WriteLine("{0} tag indices written.", tags.Count.ToString());
+            }
+            else
+            {
+                Console.WriteLine("No tag index template. Exiting.");
+            }
         }
     }
 }

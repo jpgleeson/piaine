@@ -62,7 +62,6 @@ namespace piaine
 
             string value = subString(start, current);
             tags.Add(value);
-            Console.WriteLine(value);
         }
 
         public bool isAtEnd()

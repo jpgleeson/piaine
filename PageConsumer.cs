@@ -31,7 +31,6 @@ namespace piaine
                             for (int i = 0; i < splitTagString.Length; i++)
                             {
                                 tagsInSplit.Add(splitTagString[i].Trim());
-                                Console.WriteLine(splitTagString[i].Trim());
                             }
                             TagCollectionVariable tV = new TagCollectionVariable(splitString[0], tagsInSplit);
                             tV.name = tV.name.Trim();
