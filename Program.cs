@@ -78,17 +78,20 @@ namespace piaine
 
                 if (pageConsumer.getPageTemplate() != null)
                 {
-                    post.typeOfPage = pageType.staticpage;
-                    if (File.Exists(pageConsumer.getPageTemplate()))
+                    if (post.typeOfPage != pageType.post)
                     {
-                        inputString = readTemplateFile(pageConsumer.getPageTemplate());
-                        scanner.refreshSource(inputString);
-                        parser.refreshTokens(scanner.scanTokens());
-                    }
-                    else
-                    {
-                        Console.WriteLine("Template {0} does not exist. Exiting.", pageConsumer.getPageTemplate());
-                        skip = true;
+                        post.typeOfPage = pageType.staticpage;
+                        if (File.Exists(pageConsumer.getPageTemplate()))
+                        {
+                            inputString = readTemplateFile(pageConsumer.getPageTemplate());
+                            scanner.refreshSource(inputString);
+                            parser.refreshTokens(scanner.scanTokens());
+                        }
+                        else
+                        {
+                            Console.WriteLine("Template {0} does not exist. Exiting.", pageConsumer.getPageTemplate());
+                            skip = true;
+                        }
                     }
                 }
                 else
