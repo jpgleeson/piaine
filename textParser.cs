@@ -48,6 +48,7 @@ namespace piaine
                 case '#': header(); break;
                 case '+': link(); break;
                 case '|': image(); break;
+                case '~': code(); break;
                 default:
                     text();
                     break;
@@ -130,6 +131,19 @@ namespace piaine
             altText = altText.Trim();
 
             outputString += "<img src='../content/" + imgSource + "' alt='" + altText + "'/>";
+        }
+
+        private void code()
+        {
+            while (peek() != '~' && !isAtEnd())
+            {
+                advance();
+            }
+
+            advance();
+
+            string value = subString(start + 1, current - 1);
+            outputString += "<code>" + value + "</code>";
         }
 
         private void text()
