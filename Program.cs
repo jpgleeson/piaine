@@ -75,10 +75,11 @@ namespace piaine
                 post.date = pageConsumer.getPageDate();
                 post.tags = pageConsumer.getPageTags();
 
+                string thisPageType = pageConsumer.getPageTemplate();
 
-                if (pageConsumer.getPageTemplate() != null)
+                if (thisPageType != null)
                 {
-                    if (post.typeOfPage != pageType.post)
+                    if (thisPageType != "post.html")
                     {
                         post.typeOfPage = pageType.staticpage;
                         if (File.Exists(pageConsumer.getPageTemplate()))
