@@ -49,6 +49,7 @@ namespace piaine
                 case '+': link(); break;
                 case '|': image(); break;
                 case '~': code(); break;
+                case '{': quote(); break;
                 default:
                     text();
                     break;
@@ -144,6 +145,32 @@ namespace piaine
 
             string value = subString(start + 1, current - 1);
             outputString += "<code>" + value + "</code>";
+        }
+
+        private void quote()
+        {
+            while (peek() != '}' && !isAtEnd())
+            {
+                advance();
+            }
+
+            string quoteBody = subString(start + 1, current);
+
+            start = current;
+
+            advance();
+
+            while (peek() != '}' && !isAtEnd())
+            {
+                advance();
+            }
+
+            advance();
+
+            string quoteAttribution = subString(start + 1, current - 1);
+            quoteAttribution = quoteAttribution.Trim();
+
+            outputString += "<p class='quoteBody'>" + quoteBody + "</p> <p class='quoteAttribution'>" + quoteAttribution + "</p>";
         }
 
         private void text()
